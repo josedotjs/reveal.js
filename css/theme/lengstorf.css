@@ -395,7 +395,7 @@ html::before {
   top: 0;
   left: 0;
   right: 0;
-  border-top: 4px solid #c700eb;
+  border-top: 4px solid #40b883;
   border-bottom: 2px solid #fff;
   z-index: 100;
 }

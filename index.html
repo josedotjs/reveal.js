@@ -60,7 +60,7 @@
           </ul>
         </section>
         <section>
-          <h1 style="font-size: 4rem">Tooling</h1>
+          <h1 style="font-size: 3rem">Tooling y consideraciones generales</h1>
           <ul class="lista" style="font-size: 2rem;">
             <li>Visual Studio Code</li>
             <li>Extensiones</li>
@@ -76,7 +76,11 @@
             <li>Perder el miedo a usar slots</li>
             <li>Registro automático de componentes base</li>
             <li>Conocer los patrones aplicables a componentes</li>
+            <li>Uso de librerías de terceros</li>
           </ul>
+          </section>
+          <section>
+            Organización
           </section>
           <section>
             <p>Registro de componentes base (requiere webpack y lodash)</p>
@@ -142,166 +146,29 @@ export default loadPlugins
           
         </section>
         <section>
-          <h3 class="titulo">🎯 Tomar un fragmento del video</h3>
-          <pre data-id="code-animation"><code class="" data-trim data-line-numbers>
-            const ffmpeg = require('fluent-ffmpeg')
-            ffmpeg('input.mp4')
-              .videoCodec('libx264')
-              .audioCodec('libmp3lame')
-              .seek(2)
-              .duration(5)
-              .output('out.mp4')
-              .on('end', () => {
-                console.log('esto se ejecuta al completar')
-              }).on('error', () => {
-                console.log('esto se ejecuta si hay un error')
-              })
-              .run()
-          </code></pre>
+          <section>API BEST Practices</section>
+          <section>Configurar la comunicación entre cliente y servidor</section>
+          <section>Crear un archivo centralizado para las llamdas</section>
+          <section>Trabajando con diferentes apis</section>
         </section>
         <section>
-          <h3>🎯 Resize</h3>
-          <p>Fluent-ffmpeg nos brinda facilidades para cambiar el tamaño del video y adaptarlo a diferentes formatos</p>
-          <pre data-id="code-animation"><code class="" data-trim data-line-numbers>
-            ffmpeg(input).size('640x480')
-            ffmpeg(input).size('640x?')
-            ffmpeg(input).size('640x?').aspect('4:3')
-            ffmpeg(input).size('640x?').aspect('16:9')
-            ffmpeg(input).size('50%')
-            ffmpeg(input).size('640x480').autopad('white')
-          </code></pre>
+          <section>Router</section>
+          <section>Lazy loading</section>
+          <section>Separar en diferentes archivos</section>
         </section>
         <section>
-          <div class="threecolumn">
-            <div>
-              <video src="videos/res1.mp4" autoplay loop></video>
-              <span style="font-size: 50%;">.size('640x480')</span>
-            </div>
-            <div>
-              <video src="videos/res2.mp4" autoplay loop></video>
-              <span style="font-size: 50%;">.size('640x?')</span>
-            </div>
-            <div>
-              <video src="videos/res3.mp4" autoplay loop></video>
-              <span style="font-size: 50%;">.size('640x?').aspect('4:3')</span>
-            </div>
-          </div>
-          <div class="threecolumn">
-            <div>
-              <video src="videos/res4.mp4" autoplay loop></video>
-              <span style="font-size: 50%;">.size('50%')</span>
-            </div>
-            <div>
-              <video src="videos/res5.mp4" autoplay loop></video>
-              <span style="font-size: 50%;">.size('640x480').autopad('yellow')</span>
-            </div>
-            <div>
-              <video src="videos/res6.mp4" autoplay loop></video>
-              <span style="font-size: 50%;">.size('?x480').aspect('16:9')</span>
-            </div>
-          </div>
+          <section>Vuex</section>
+          <section>Loading automático de modulos</section>
+          <section>No abusar de los datos que se guardan</section>
+          <section>Uso de mapState, mapActions, mapGetters</section>
         </section>
         <section>
-          <h3 class="titulo">Filtros</h3>
-          <ul class="lista">
-            <li>Operaciones sobre el audio o video</li>
-            <li><a href="https://ffmpeg.org/ffmpeg-filters.html" target="_blank"> Se incluyen cientos en ffmpeg (desconozco el 99% de los mismos)</a></li>
-            <li>⚠️ Hay casos en los que no se pueden combinar (hay que crear primero un video con el filtro aplicado y al resultado aplicarle el segundo filtro)
-            </li>
-          </ul>
-        </section>
-        <section>
-          <pre data-id="code-animation"><code class="" data-trim data-line-numbers>
-            ffmpeg(input) // Marca de agua
-            .addOption([
-              '-vf',
-              'movie=pathMarca.png [watermark]; [in] [watermark] overlay=W-w-5:5 [out]',
-            ])
-            /*
-            ' overlay=(W-w)/2:(H-h)/2 ' = centrado, 'overlay=5:5' = tl 'overlay=W-w-5:5' = tr  ' overlay=W-w-5:H-h-5 ' = br ' overlay=5:H-h-5 ' = bl
-            */
-          </code></pre>
-          <pre data-id="code-animation"><code class="" data-trim data-line-numbers>
-            ffmpeg(input) // sepia
-            .addOptions([
-              '-filter_complex colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131',
-            ])
-          </code></pre>
-          <pre data-id="code-animation"><code class="" data-trim data-line-numbers>
-            ffmpeg(input) // Escala de grises
-            .addOption(['-vf hue=s=0'])
-          </code></pre>
-        </section>
-        <section>
-          <h3 class="titulo">Subtitulos 1 - VTT</h3>
-          <p style="margin-top: 3rem;">Es el formato más simple y el único que es soportado por los navegadores</p>
-          <pre><code class="" data-trim>
-            WEBVTT
-
-            00:01.000 --> 00:04.000
-            - Nunca bebas nitrógeno líquido.
-
-            00:05.000 --> 00:09.000
-            - Podría perforar tu estómago.
-            - Podrías morir.
-
-          </code></pre>
-        </section>
-        <section>
-          <h3 class="titulo">Subtitulos 2 - SRT</h3>
-          <p style="margin-top: 3rem;">Es el formato más popular, se puede agregar como un stream en los contenedores que lo soportan</p>
-          <pre><code class="" data-trim>
-            1
-            00:00:05 --> 00:00:08
-            Un viaje a la playa
-            Enero 27 2018
-
-            2
-            00:00:10 --> 00:00:16
-            Llegamos a la playa...
-
-          </code></pre>
-          <pre><code class="" data-trim>
-            ffmpeg -i input.mp4 -i input.srt output.mkv
-          </code></pre>
-        </section>
-        <section>
-          <h3 class="titulo">Subtitulos 3 - SSA</h3>
-          <p>Es el formato más complejos para crear, pero a su vez el más completo, permite manejar casi todos los aspectos (fuente, tamaño, color, fondo, borde, ángulo y un largo etc)</p>
-          <p>⚠️ Usar el formato específico para el tiempo (HH:mm:ss.SS)</p>
-        </section>
-        <section>
-          <h3 class="titulo">Capturas</h3>
-          <p>fluent-ffmpeg nos facilita la toma de capturas en momentos específicos del video</p>
-        </code></pre>
-        <pre><code class="" data-trim>
-          ffmpeg(input)
-            .screenshots({
-              timestamps: [30.5, '50%', '01:10.123'], // Acepta tiempo en segudos, porcentajes o con formato de tiempo
-              filename: 'thumbnail-at-%s-seconds.png',
-              folder: '/path/to/output',
-              size: '640x?'
-            })
-        </code></pre>
-        <p>Con este comando generamos una imagen por cada elemento dentro de timestamps</p>
-        </section>
-        <section>
-          <h3 class="title">Capturas 2 - Crear mosaico</h3>
-          <p>ffmpeg tiene un filtro para crear múltiples capturas dentro de una misma imagen (mosaico o tiles)</p>
-          <pre><code class="" data-trim>
-            ffmpeg(input)
-              .output(output)
-              .outputOptions(
-                '-vf',
-                `fps=1/${unFrameCadaXSegundos},scale=-1:240,tile=${cols}x${rows}`
-              )
-          </code></pre>
-          
-        </section>
-        <section>
-          <h3 class="titulo">Fin</h3>
-          <p>¿Dudas, consultas?</p>
-          <img src="img/thanks.gif" alt="">
+          <section>Otros</section>
+          <section>Funciones utilitarias</section>
+          <section>Variables de entorno</section>
+          <section>Manejo de errores</section>
+          <section>Documentación de componentes</section>
+          <section>Automatizar todo lo que se pueda</section>
         </section>
       </div>
     </div>
