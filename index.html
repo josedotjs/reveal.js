@@ -63,9 +63,15 @@
           <h1 style="font-size: 3rem">Tooling y consideraciones generales</h1>
           <ul class="lista" style="font-size: 2rem;">
             <li>Visual Studio Code</li>
-            <li>Extensiones</li>
-            <li>Carpeta .vscode</li>
-            <li>Guía de estilos</li>
+            <li>
+              <a href="https://marketplace.visualstudio.com/items?itemName=sdras.vue-vscode-extensionpack" target="_blank">Extensiones</a>
+            </li>
+            <li>
+              <a href="https://code.visualstudio.com/docs/editor/extension-gallery" target="_blank">Carpeta .vscode</a>
+              </li>
+            <li>
+              <a href="https://vuejs.org/v2/style-guide/" target="_blank">Guía de estilos</a>
+              </li>
           </ul>
         </section>
         <section>
@@ -75,12 +81,10 @@
             <li>No escatimar en componentes propios</li>
             <li>Perder el miedo a usar slots</li>
             <li>Registro automático de componentes base</li>
-            <li>Conocer los patrones aplicables a componentes</li>
+            <li><a href="https://learn-vuejs.github.io/vue-patterns/patterns/#component-declaration" target="_blank">Conocer los patrones aplicables a componentes</a></li>
             <li>Uso de librerías de terceros</li>
+            
           </ul>
-          </section>
-          <section>
-            Organización
           </section>
           <section>
             <p>Registro de componentes base (requiere webpack y lodash)</p>
@@ -143,32 +147,340 @@ const loadPlugins = (filenames) => {
 export default loadPlugins
             </code></pre>
           </section>
-          
+          <section>
+            <p>Integración de librerías de terceros</p>
+            <pre><code>
+<template>
+  <div ref="awesomeElement"></div>
+</template>
+
+<script>
+import awesome from 'awesome'
+
+export default {
+  props: {
+    config: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  mounted() {
+    awesome(this.$refs.awesomeElement, {
+      awesomeProp: 'awesome',
+      awesomeProp2: 'cool',
+      awesomeProp3: 'sweet',
+      ...this.config
+    })
+  }
+}
+</script>
+
+            </code></pre>
+          </section>
         </section>
         <section>
           <section>API BEST Practices</section>
-          <section>Configurar la comunicación entre cliente y servidor</section>
-          <section>Crear un archivo centralizado para las llamdas</section>
-          <section>Trabajando con diferentes apis</section>
+          <section>
+            <p>Configurar comunicación entre cliente y servidor</p>
+            <div class="two-columns">
+              <div style="background-color: #fc8b83;">
+                <pre><code>
+// En express
+app.use(cors())
+                </code></pre>
+                <img src="https://media.giphy.com/media/hyyV7pnbE0FqLNBAzs/source.gif" alt="">
+              </div>
+              <div>
+                <pre><code>
+// en vue.config.js 
+devServer: {
+  proxy: {
+    '/api': { target: 'http://localhost:4000' },
+  },
+},
+                </code></pre>
+                <img src="/img/ok.webp" alt="">
+              </div>
+            </div>
+          </section>
+          <section>
+            <p>Crear un archivo centralizado para las llamadas</p> 
+            <pre><code>
+import axios from 'axios'
+
+const axiosInstance = axios.create({
+  baseURL: '/api',
+})
+
+/**
+  *  Configuración de axios para no tener que usar siempre response.data en las devoluciones de la api
+  */
+axiosInstance.interceptors.response.use(
+  function(response) {
+    // Any status code that lie within the range of 2xx cause this function to trigger
+    // Do something with response data
+    return response.data
+  },
+  function(error) {
+    // Any status codes that falls outside the range of 2xx cause this function to trigger
+    // Do something with response error
+    return Promise.reject(error)
+  }
+)
+
+const logError = (e) => {
+  // TODO: mejorar el mensaje de error tomando los aspectos importantes dentro de e
+  console.error(e)
+}
+const api = {
+  /**
+    *
+    * @param {String} url - url a la cual solicitaremos el recurso
+    * @param {Object} config - configuración de axios para sobreescribir la original
+    * @returns {Promise}
+    */
+  get(url, config) {
+    return axiosInstance.get(url, config).catch(logError)
+  },
+  post(url, body, config) {
+    return axiosInstance.post(url, body, config).catch(logError)
+  },
+  patch(url, body, config) {
+    return axiosInstance.patch(url, body, config).catch(logError)
+  },
+  // TODO: Agregar los otros métodos
+}
+
+export default api
+              
+            </code></pre>
+          </section>
+          <section>
+            <p>Trabajando con diferentes apis</p>
+            <pre><code>
+// @/services/giphy.js
+import api from '@/api'
+
+const giphyConfig = {
+  baseURL: process.env.VUE_APP_GIPHY_API,
+  timeout: 5000,
+}
+
+export default {
+  trendingGifs() {
+    return api.get(
+      `/gifs/trending?api_key=${process.env.VUE_APP_GIPHY_KEY}`,
+      giphyConfig
+    )
+  },
+}
+              
+            </code></pre>
+          </section>
         </section>
         <section>
-          <section>Router</section>
-          <section>Lazy loading</section>
-          <section>Separar en diferentes archivos</section>
+          <section>
+            <p>Router</p>
+            <img src="/img/router.webp" alt="">
+          </section>
+          <section>
+            <p> Lazy loading</p>
+            <pre><code>{
+  path: '/people',
+  name: 'PeopleMain',
+  component: () =>
+    import(/* webpackChunkName: "people" */ '../views/PeopleMain.vue'),
+},
+            </code></pre>
+           </section>
+          <section>
+            <p>Separar en diferentes archivos</p>
+            <div class="two-columns">
+              <div>
+                <pre><code>
+/* @/router/people.js */
+const routes = [
+{
+  path: '/people',
+  name: 'PeopleMain',
+  component: () =>
+    import(/* webpackChunkName: "people" */ '../views/PeopleMain.vue'),
+},
+// Otras rutas
+]
+
+export default routes                  
+                </code></pre>
+
+              </div>
+              <div>
+            <pre><code data-line-numbers="7|10-11">/* @/router/index.js */
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Home from '../views/Home.vue'
+import About from '@/views/About.vue'
+import NotFound from '@/views/NotFound.vue'
+import peopleRoutes from './people'
+const routes = [
+  // rutas por defecto
+  ...peopleRoutes
+  ]
+
+            </code></pre>    
+              </div>
+            </div>
+            
+            </section>
+          <section>
+            <p>Agregar la página 404</p>
+            <pre><code data-line-numbers="5">/* @/router/index.js */
+// Agregar como última ruta
+const routes = [
+  ...
+  { path: '*', component: NotFound },
+]
+            </code></pre>
+          </section>
+          <section>
+            <p>Tip: Modificar active-class y exact</p>
+            <pre><code>
+<template>
+  <router-link class="navbar-item" active-class="active" :to="to" exact>
+    <slot />
+  </router-link>
+</template>
+<script>
+export default {
+  props: {
+    to: {
+      type: String,
+      default: '',
+    },
+  },
+}
+</script>
+<style scoped>
+.navbar-item.active {
+  font-weight: bold;
+}
+</style>
+            </code></pre>
+          </section>
         </section>
         <section>
-          <section>Vuex</section>
-          <section>Loading automático de modulos</section>
-          <section>No abusar de los datos que se guardan</section>
-          <section>Uso de mapState, mapActions, mapGetters</section>
+          <section>
+            <p>Vuex</p>
+            <img src="/img/vuex.webp" alt="">
+          </section>
+          <section>
+            <p> <a href="https://github.com/bencodezen/vue-enterprise-boilerplate/blob/main/src/state/modules/index.js" target="_blank">Carga automática de modulos</a> </p>
+            <pre><code>
+/* @/store/modules/index.js */
+import camelCase from 'lodash/camelCase'
+
+const modulesCache = {}
+const storeData = { modules: {} }
+
+;(function updateModules() {
+  // Allow us to dynamically require all Vuex module files.
+  // https://webpack.js.org/guides/dependency-management/#require-context
+  const requireModule = require.context(
+    // Search for files in the current directory.
+    '.',
+    // Search for files in subdirectories.
+    true,
+    // Include any .js files that are not this file or a unit test.
+    /^((?!index|\.unit\.).)*\.js$/
+  )
+
+  // For every Vuex module...
+  requireModule.keys().forEach((fileName) => {
+    const moduleDefinition =
+      requireModule(fileName).default || requireModule(fileName)
+
+    // Skip the module during hot reload if it refers to the
+    // same module definition as the one we have cached.
+    if (modulesCache[fileName] === moduleDefinition) return
+
+    // Update the module cache, for efficient hot reloading.
+    modulesCache[fileName] = moduleDefinition
+
+    // Get the module path as an array.
+    const modulePath = fileName
+      // Remove the "./" from the beginning.
+      .replace(/^\.\//, '')
+      // Remove the file extension from the end.
+      .replace(/\.\w+$/, '')
+      // Split nested modules into an array path.
+      .split(/\//)
+      // camelCase all module namespaces and names.
+      .map(camelCase)
+
+    // Get the modules object for the current path.
+    const { modules } = getNamespace(storeData, modulePath)
+
+    // Add the module to our modules object.
+    modules[modulePath.pop()] = {
+      // Modules are namespaced by default.
+      namespaced: true,
+      ...moduleDefinition,
+    }
+  })
+
+  // If the environment supports hot reloading...
+  if (module.hot) {
+    // Whenever any Vuex module is updated...
+    module.hot.accept(requireModule.id, () => {
+      // Update `storeData.modules` with the latest definitions.
+      updateModules()
+      // Trigger a hot update in the store.
+      require('../index.js').default.hotUpdate({ modules: storeData.modules })
+    })
+  }
+})()
+
+// Recursively get the namespace of a Vuex module, even if nested.
+function getNamespace(subtree, path) {
+  if (path.length === 1) return subtree
+
+  const namespace = path.shift()
+  subtree.modules[namespace] = {
+    modules: {},
+    namespaced: true,
+    ...subtree.modules[namespace],
+  }
+  return getNamespace(subtree.modules[namespace], path)
+}
+
+export default storeData.modules
+            </code></pre>
+          </section>
+          <section>
+            <p>No abusar de los datos que se guardan</p>
+            <p>No crear getters innecesarios</p>
+            <p>Usar mapState, mapActions, mapGetters</p>
+            </section>
         </section>
         <section>
-          <section>Otros</section>
-          <section>Funciones utilitarias</section>
-          <section>Variables de entorno</section>
-          <section>Manejo de errores</section>
-          <section>Documentación de componentes</section>
-          <section>Automatizar todo lo que se pueda</section>
+          <section>
+            <p>Otras consideraciones</p>
+            <img src="/img/otros.webp" alt="">
+          </section>
+          <section>
+            
+            <ul>
+              <li>Crear funciones utilitarias</li>
+              <li>Variables de entorno</li>
+              <li>Manejo de errores</li>
+              <li>Documentación de componentes</li>
+              <li>Automatizar todo lo que se pueda</li>
+            </ul>
+            </section>
+        </section>
+        <section>
+          <h1>Gracias</h1>
+          <img src="/img/gracias.jpg" alt="">
+          <p>Vuelva pronto</p>
         </section>
       </div>
     </div>
